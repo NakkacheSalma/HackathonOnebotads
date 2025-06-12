@@ -1,12 +1,14 @@
-
+import streamlit as st 
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch, random, json, uuid
 from datetime import datetime, timedelta
 
-model_id = "google/gemma-2b-it"
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.float16, device_map="auto")
+# ✅ Récupérer le token depuis les secrets
+hf_token = st.secrets["HF_TOKEN"]
 
+model_id = "google/gemma-2b-it"
+tokenizer = AutoTokenizer.from_pretrained(model_id, token=hf_token)
+model = AutoModelForCausalLM.from_pretrained(model_id, token=hf_token, torch_dtype=torch.float16, device_map="auto")
 def generate_with_gemma(prompt, max_new_tokens=200):
     input_tokens = tokenizer(prompt, return_tensors="pt").to(model.device)
     outputs = model.generate(**input_tokens, max_new_tokens=max_new_tokens, return_dict_in_generate=True)
